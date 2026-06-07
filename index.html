@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assassin's Creed IV: Black Flag</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --gold-dark: #8a6c20;
+    --ocean-deep: #021520;
+    --ocean-mid: #042535;
+    --ocean-surface: #0a3d5c;
+    --cream: #f4ead5;
+    --cream-dark: #c9b99a;
+    --red-pirate: #8b1a1a;
+    --red-bright: #c0392b;
+    --wood: #5c3a1e;
+    --rope: #9e7d4f;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ocean-deep);
+    color: var(--cream);
+    font-family: 'IM Fell English', serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--ocean-deep); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+
+  .ocean-bg {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 100%, #042a44 0%, var(--ocean-deep) 70%);
+  }
+  .wave {
+    position: absolute; width: 200%; height: 120px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120'%3E%3Cpath fill='%23042535' fill-opacity='0.5' d='M0,64L60,58.7C120,53,240,43,360,53.3C480,64,600,96,720,96C840,96,960,64,1080,48C1200,32,1320,32,1380,32L1440,32L1440,120L0,120Z'/%3E%3C/svg%3E") repeat-x;
+    animation: wave-anim 12s linear infinite;
+    opacity: 0.3; bottom: 0;
+  }
+  .wave:nth-child(2) { animation-duration: 18s; animation-delay: -6s; opacity: 0.15; bottom: 20px; }
+  .wave:nth-child(3) { animation-duration: 24s; animation-delay: -12s; opacity: 0.08; bottom: 40px; }
+  @keyframes wave-anim { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,220,0.8) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 25%, rgba(255,255,220,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 10%, rgba(255,255,220,0.9) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 20%, rgba(255,255,220,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 88% 8%, rgba(255,255,220,0.7) 0%, transparent 100%),
+      radial-gradient(2px 2px at 20% 5%, rgba(255,240,180,0.9) 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 35%, rgba(255,255,220,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 42% 18%, rgba(255,255,220,0.6) 0%, transparent 100%),
+      radial-gradient(2px 2px at 90% 30%, rgba(255,240,180,0.8) 0%, transparent 100%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.6; } to { opacity: 1; } }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: linear-gradient(180deg, rgba(2,21,32,0.95) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    backdrop-filter: blur(4px);
+  }
+  .nav-logo {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--gold); letter-spacing: 0.05em;
+    text-shadow: 0 0 20px rgba(201,168,76,0.4);
+  }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 600;
+    color: var(--cream-dark); text-decoration: none; letter-spacing: 0.15em;
+    text-transform: uppercase; transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+    overflow: hidden;
+  }
+
+  .hero-ship-img {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 1400px; opacity: 0.18;
+    pointer-events: none;
+    filter: sepia(40%) hue-rotate(180deg) saturate(0.5);
+  }
+
+  .ac-logo-area {
+    position: relative; z-index: 2;
+    animation: fadeInDown 1.2s ease-out;
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .ac-emblem {
+    width: 90px; height: 90px; margin: 0 auto 1.5rem;
+    position: relative;
+  }
+  .ac-emblem svg { width: 100%; height: 100%; filter: drop-shadow(0 0 16px rgba(201,168,76,0.6)); }
+
+  .hero-eyebrow {
+    font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+    animation: fadeInDown 1.4s ease-out;
+  }
+
+  .hero-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(3rem, 9vw, 8rem);
+    font-weight: 900; line-height: 0.9;
+    color: var(--cream);
+    text-shadow: 0 0 60px rgba(201,168,76,0.3), 0 4px 30px rgba(0,0,0,0.8);
+    margin-bottom: 0.3em;
+    animation: fadeInDown 1.6s ease-out;
+  }
+
+  .hero-subtitle {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.8rem, 4vw, 4rem);
+    font-weight: 400; color: var(--gold);
+    text-shadow: 0 0 30px rgba(201,168,76,0.5);
+    letter-spacing: 0.05em;
+    margin-bottom: 2rem;
+    animation: fadeInDown 1.8s ease-out;
+  }
+
+  .hero-tagline {
+    font-size: 1.05rem; font-style: italic;
+    color: var(--cream-dark); max-width: 560px;
+    line-height: 1.8; margin: 0 auto 3rem;
+    animation: fadeInDown 2s ease-out;
+  }
+
+  .hero-cta {
+    display: inline-flex; gap: 1rem;
+    animation: fadeInDown 2.2s ease-out;
+  }
+  .btn-primary {
+    font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 1rem 2.5rem; cursor: pointer; border: none;
+    background: var(--gold); color: var(--ocean-deep);
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all 0.3s; text-decoration: none;
+  }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+  .btn-secondary {
+    font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 1rem 2.5rem; cursor: pointer;
+    background: transparent; color: var(--gold);
+    border: 1px solid var(--gold-dark);
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all 0.3s; text-decoration: none;
+  }
+  .btn-secondary:hover { background: rgba(201,168,76,0.1); transform: translateY(-2px); }
+
+  .scroll-indicator {
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+  .scroll-indicator span {
+    font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--gold-dark);
+  }
+  .scroll-arrow { width: 24px; height: 24px; border-right: 2px solid var(--gold-dark); border-bottom: 2px solid var(--gold-dark); transform: rotate(45deg); }
+
+  section { position: relative; z-index: 1; }
+
+  .section-label {
+    font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--gold-dark); text-align: center;
+    margin-bottom: 0.8rem;
+  }
+  .section-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700;
+    color: var(--cream); text-align: center; margin-bottom: 1.5rem;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  }
+  .section-body {
+    font-size: 1.05rem; line-height: 1.9; color: var(--cream-dark);
+    max-width: 780px; margin: 0 auto; text-align: center;
+  }
+
+  .story-section {
+    padding: 8rem 2rem;
+    background: linear-gradient(180deg, var(--ocean-deep) 0%, var(--ocean-mid) 50%, var(--ocean-deep) 100%);
+  }
+
+  .story-grid {
+    max-width: 1200px; margin: 5rem auto 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem;
+    align-items: center;
+  }
+
+  .story-text-block { padding: 1rem 0; }
+  .story-chapter {
+    font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+  .story-heading {
+    font-family: 'Cinzel Decorative', serif; font-size: 2.2rem; font-weight: 700;
+    color: var(--cream); line-height: 1.2; margin-bottom: 1.5rem;
+  }
+  .story-text {
+    font-size: 1rem; line-height: 2; color: var(--cream-dark);
+    font-style: italic;
+  }
+  .story-text p { margin-bottom: 1.2rem; }
+
+  .story-quote {
+    margin: 2rem 0;
+    padding: 1.5rem 2rem;
+    border-left: 3px solid var(--gold);
+    background: rgba(201,168,76,0.05);
+  }
+  .story-quote blockquote {
+    font-family: 'Cinzel Decorative', serif; font-size: 1.05rem;
+    color: var(--gold-light); font-style: italic; line-height: 1.7;
+  }
+  .story-quote cite {
+    display: block; margin-top: 0.8rem;
+    font-family: 'Cinzel', serif; font-size: 0.7rem;
+    letter-spacing: 0.2em; color: var(--gold-dark);
+  }
+
+  .story-image-frame { position: relative; }
+  .story-image-frame::before {
+    content: '';
+    position: absolute; inset: -8px;
+    border: 1px solid var(--gold-dark);
+    clip-path: polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px);
+    pointer-events: none; z-index: 2;
+  }
+  .story-image-frame::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 50%, rgba(4,37,53,0.5) 100%);
+    pointer-events: none; z-index: 2;
+  }
+  .story-img {
+    width: 100%; height: 480px; object-fit: cover;
+    display: block;
+    clip-path: polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px);
+    filter: saturate(0.85) brightness(0.9);
+    transition: filter 0.6s;
+  }
+  .story-image-frame:hover .story-img { filter: saturate(1) brightness(1); }
+
+  .story-grid.reverse { direction: rtl; }
+  .story-grid.reverse > * { direction: ltr; }
+
+  .character-section {
+    padding: 8rem 2rem;
+    background: linear-gradient(180deg, var(--ocean-deep) 0%, #030f1a 100%);
+  }
+
+  .character-cards {
+    max-width: 1200px; margin: 4rem auto 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .char-card {
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(201,168,76,0.2);
+    background: linear-gradient(180deg, rgba(10,61,92,0.3) 0%, rgba(2,21,32,0.8) 100%);
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    transition: transform 0.4s, border-color 0.4s;
+    cursor: default;
+  }
+  .char-card:hover { transform: translateY(-6px); border-color: rgba(201,168,76,0.5); }
+  .char-card-img {
+    width: 100%; height: 340px; object-fit: cover;
+    filter: grayscale(30%) saturate(0.8);
+    transition: filter 0.5s; display: block;
+  }
+  .char-card:hover .char-card-img { filter: grayscale(0%) saturate(1); }
+
+  .char-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(2,21,32,0.98) 100%);
+  }
+  .char-card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; }
+  .char-faction {
+    font-family: 'Cinzel', serif; font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.4rem;
+  }
+  .char-name {
+    font-family: 'Cinzel Decorative', serif; font-size: 1.3rem; font-weight: 700;
+    color: var(--cream); line-height: 1.2; margin-bottom: 0.6rem;
+  }
+  .char-desc { font-size: 0.85rem; color: var(--cream-dark); line-height: 1.6; font-style: italic; }
+
+  .ships-section {
+    padding: 8rem 2rem;
+    background: linear-gradient(180deg, #030f1a 0%, var(--ocean-mid) 50%, #030f1a 100%);
+    overflow: hidden;
+  }
+
+  .jackdaw-feature {
+    max-width: 1200px; margin: 5rem auto 0;
+    display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem;
+    align-items: center;
+  }
+
+  .jackdaw-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .stat-item {
+    padding: 1.2rem;
+    background: rgba(201,168,76,0.05);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-left: 3px solid var(--gold-dark);
+  }
+  .stat-value {
+    font-family: 'Cinzel Decorative', serif; font-size: 1.8rem;
+    color: var(--gold); margin-bottom: 0.3rem;
+  }
+  .stat-label {
+    font-family: 'Cinzel', serif; font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--cream-dark);
+  }
+
+  .ship-image-wrap { position: relative; }
+  .ship-image-wrap img {
+    width: 100%; border-radius: 2px;
+    filter: saturate(0.9) brightness(0.85); transition: filter 0.5s;
+  }
+  .ship-image-wrap:hover img { filter: saturate(1.1) brightness(1); }
+  .ship-glow {
+    position: absolute; inset: -20px;
+    background: radial-gradient(ellipse at center, rgba(201,168,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .world-section {
+    padding: 8rem 2rem;
+    background: linear-gradient(180deg, #030f1a 0%, var(--ocean-deep) 100%);
+  }
+
+  .world-gallery {
+    max-width: 1200px; margin: 4rem auto 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .gallery-item {
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(201,168,76,0.15);
+    transition: border-color 0.4s; cursor: pointer;
+  }
+  .gallery-item:first-child { grid-column: 1 / 3; }
+  .gallery-item:nth-child(4) { grid-column: 2 / 4; }
+  .gallery-item:hover { border-color: rgba(201,168,76,0.4); }
+  .gallery-item img {
+    width: 100%; height: 260px; object-fit: cover;
+    display: block; transition: transform 0.6s;
+    filter: saturate(0.7) brightness(0.8);
+  }
+  .gallery-item:first-child img { height: 380px; }
+  .gallery-item:nth-child(4) img { height: 380px; }
+  .gallery-item:hover img { transform: scale(1.05); filter: saturate(1) brightness(0.95); }
+
+  .gallery-caption {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 1rem 1.2rem;
+    background: linear-gradient(180deg, transparent 0%, rgba(2,21,32,0.9) 100%);
+    transform: translateY(100%); transition: transform 0.4s;
+  }
+  .gallery-item:hover .gallery-caption { transform: translateY(0); }
+  .gallery-caption h4 {
+    font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.3rem;
+  }
+  .gallery-caption p { font-size: 0.85rem; color: var(--cream-dark); }
+
+  .lore-section {
+    padding: 8rem 2rem;
+    background: linear-gradient(180deg, var(--ocean-deep) 0%, #020e18 100%);
+  }
+
+  .lore-timeline {
+    max-width: 900px; margin: 5rem auto 0; position: relative;
+  }
+  .lore-timeline::before {
+    content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
+    background: linear-gradient(180deg, transparent, var(--gold-dark), var(--gold-dark), transparent);
+    transform: translateX(-50%);
+  }
+
+  .timeline-entry {
+    display: grid; grid-template-columns: 1fr 60px 1fr;
+    align-items: start; gap: 0; margin-bottom: 4rem;
+  }
+  .timeline-entry:nth-child(odd) .tl-text { grid-column: 1; text-align: right; }
+  .timeline-entry:nth-child(odd) .tl-empty { grid-column: 3; }
+  .timeline-entry:nth-child(even) .tl-text { grid-column: 3; text-align: left; }
+  .timeline-entry:nth-child(even) .tl-empty { grid-column: 1; }
+
+  .tl-dot {
+    grid-column: 2; justify-self: center;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--gold); border: 2px solid var(--ocean-deep);
+    box-shadow: 0 0 10px rgba(201,168,76,0.5); margin-top: 0.3rem;
+  }
+  .tl-year { font-family: 'Cinzel Decorative', serif; font-size: 0.9rem; color: var(--gold); margin-bottom: 0.5rem; }
+  .tl-event { font-family: 'Cinzel', serif; font-size: 0.9rem; font-weight: 700; color: var(--cream); margin-bottom: 0.5rem; }
+  .tl-desc { font-size: 0.9rem; color: var(--cream-dark); line-height: 1.7; font-style: italic; }
+
+  footer {
+    position: relative; z-index: 1;
+    padding: 4rem 2rem 2rem;
+    background: #010b10;
+    border-top: 1px solid rgba(201,168,76,0.15);
+    text-align: center;
+  }
+
+  .footer-emblem { width: 60px; height: 60px; margin: 0 auto 2rem; opacity: 0.6; }
+  .footer-emblem svg { width: 100%; height: 100%; }
+  .footer-tagline { font-family: 'Cinzel Decorative', serif; font-size: 1.1rem; color: var(--gold-dark); margin-bottom: 1rem; }
+  .footer-small {
+    font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(201,168,76,0.3); margin-top: 2rem;
+  }
+
+  .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .particle {
+    position: absolute; border-radius: 50%;
+    background: rgba(201,168,76,0.4);
+    animation: float-particle linear infinite;
+  }
+  @keyframes float-particle {
+    from { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.5; }
+    to { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+  }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .story-grid, .jackdaw-feature { grid-template-columns: 1fr; gap: 3rem; }
+    .story-grid.reverse { direction: ltr; }
+    .world-gallery { grid-template-columns: 1fr 1fr; }
+    .world-gallery .gallery-item:first-child,
+    .world-gallery .gallery-item:nth-child(4) { grid-column: 1 / -1; }
+    .lore-timeline::before { left: 30px; }
+    .timeline-entry { grid-template-columns: 60px 1fr; }
+    .timeline-entry:nth-child(odd) .tl-text,
+    .timeline-entry:nth-child(even) .tl-text { grid-column: 2; text-align: left; }
+    .timeline-entry:nth-child(odd) .tl-empty,
+    .timeline-entry:nth-child(even) .tl-empty { display: none; }
+    .tl-dot { grid-column: 1; }
+    .character-cards { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ocean-bg">
+  <div class="stars"></div>
+  <div class="wave"></div>
+  <div class="wave"></div>
+  <div class="wave"></div>
+</div>
+
+<div class="particles" id="particles"></div>
+
+<nav>
+  <div class="nav-logo">⚓ Black Flag</div>
+  <ul class="nav-links">
+    <li><a href="#story">Story</a></li>
+    <li><a href="#characters">Characters</a></li>
+    <li><a href="#jackdaw">The Jackdaw</a></li>
+    <li><a href="#world">World</a></li>
+    <li><a href="#lore">Lore</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="home">
+  <img class="hero-ship-img"
+    src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80"
+    alt="Pirate ship silhouette"
+    onerror="this.style.display='none'"
+  />
+  <div class="ac-logo-area">
+    <div class="ac-emblem">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="50,5 95,95 5,95" fill="none" stroke="#c9a84c" stroke-width="3"/>
+        <polygon points="50,20 80,80 20,80" fill="rgba(201,168,76,0.1)" stroke="#c9a84c" stroke-width="1.5"/>
+        <line x1="50" y1="5" x2="50" y2="95" stroke="#c9a84c" stroke-width="1"/>
+        <circle cx="50" cy="50" r="6" fill="#c9a84c"/>
+        <circle cx="50" cy="50" r="3" fill="#021520"/>
+        <line x1="5" y1="95" x2="95" y2="95" stroke="#c9a84c" stroke-width="1"/>
+      </svg>
+    </div>
+    <p class="hero-eyebrow">Assassin's Creed IV</p>
+    <h1 class="hero-title">BLACK<br>FLAG</h1>
+    <p class="hero-subtitle">The Golden Age of Piracy</p>
+    <p class="hero-tagline">"I've come to understand that a man has only what he can fight for, and nothing more."</p>
+    <div class="hero-cta">
+      <a href="#story" class="btn-primary">Begin the Story</a>
+      <a href="#jackdaw" class="btn-secondary">The Jackdaw</a>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Sail Forth</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<section class="story-section" id="story">
+  <div class="section-label">Chapter One</div>
+  <h2 class="section-title">The Birth of a Pirate</h2>
+  <p class="section-body reveal">
+    In the lawless seas of the 18th century Caribbean, a Welsh sailor's ambition would reshape the world —
+    and test the very souls of two ancient brotherhoods.
+  </p>
+
+  <div class="story-grid">
+    <div class="story-text-block reveal">
+      <p class="story-chapter">1715 — The Caribbean</p>
+      <h3 class="story-heading">A Sailor Becomes a Legend</h3>
+      <div class="story-text">
+        <p>Edward Kenway was not born a pirate. He was a Welsh privateer — brash, reckless, and burning with ambition — who dreamed of returning home to Bristol draped in gold and glory, enough to win the heart of his beloved Caroline.</p>
+        <p>When his ship is wrecked during a fierce storm, Edward survives against impossible odds, washing ashore on a desperate stretch of ocean. It is here that fate — and a fleeing Assassin named Duncan Walpole — changes everything.</p>
+      </div>
+      <div class="story-quote">
+        <blockquote>"I spent years searching the seas for something I believed lay just over the horizon — treasure, glory, freedom. What I found instead was far more terrible, and far more precious."</blockquote>
+        — Edward Kenway
+      </div>
+    </div>
+    <div class="story-image-frame reveal">
+      <img class="story-img"
+        src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80"
+        alt="Stormy Caribbean seas"
+        onerror="this.src='https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=800&q=80'"
+      />
+    </div>
+  </div>
+
+  <div class="story-grid reverse" style="margin-top:6rem;">
+    <div class="story-image-frame reveal">
+      <img class="story-img"
+        src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80"
+        alt="Caribbean tropical beach"
+        onerror="this.src='https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=800&q=80'"
+      />
+    </div>
+    <div class="story-text-block reveal">
+      <p class="story-chapter">Chapter Two</p>
+      <h3 class="story-heading">Stolen Robes, Stolen Destiny</h3>
+      <div class="story-text">
+        <p>Killing the Assassin Duncan Walpole, Edward steals his robes and assumes his identity — posing as a member of the Brotherhood to sell their secrets to the Templars. But greed has a way of weaving webs more tangled than any man can escape.</p>
+        <p>What begins as a scheme for profit thrusts Edward into the heart of a centuries-old war. The Caribbean's most notorious pirates — Blackbeard, Charles Vane, Anne Bonny, Mary Read — become his allies, enemies, and mirrors of his own soul.</p>
+      </div>
+      <div class="story-quote">
+        <blockquote>"Stealing robes does not make you an Assassin, Edward. But perhaps... wearing them long enough will."</blockquote>
+        — Adéwalé, Edward's Quartermaster
+      </div>
+    </div>
+  </div>
+
+  <div class="story-grid" style="margin-top:6rem;">
+    <div class="story-text-block reveal">
+      <p class="story-chapter">Chapter Three</p>
+      <h3 class="story-heading">The Observatory & The Sage</h3>
+      <div class="story-text">
+        <p>The Templars seek a mythical structure of immense power — the Observatory — a First Civilization installation capable of watching any person on Earth through a single drop of blood. To find it, they need Bartholomew Roberts, the mysterious Sage.</p>
+        <p>Edward's pursuit of the Observatory will take him from Nassau's sun-bleached taverns to Mayan ruins hidden beneath the jungle canopy — and force him to confront whether freedom was ever what he truly wanted.</p>
+      </div>
+    </div>
+    <div class="story-image-frame reveal">
+      <img class="story-img"
+        src="https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=800&q=80"
+        alt="Jungle ruins"
+        onerror="this.src='https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80'"
+      />
+    </div>
+  </div>
+</section>
+
+<section class="character-section" id="characters">
+  <div class="section-label">The Players</div>
+  <h2 class="section-title reveal">Legends of the Golden Age</h2>
+  <p class="section-body reveal">Pirates, Assassins, Templars — each soul scarred by the sea, each burning with a purpose the ocean cannot drown.</p>
+
+  <div class="character-cards">
+    <div class="char-card reveal">
+      <img class="char-card-img"
+        src="https://images.unsplash.com/photo-1520962880247-cfaf541d8354?w=600&q=80"
+        alt="Edward Kenway"
+        onerror="this.src='https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=80'"
+      />
+      <div class="char-card-overlay"></div>
+      <div class="char-card-info">
+        <p class="char-faction">Welsh Pirate · Assassin</p>
+        <h3 class="char-name">Edward Kenway</h3>
+        <p class="char-desc">A privateer turned pirate captain, whose greed and recklessness slowly give way to something resembling a conscience — and a creed.</p>
+      </div>
+    </div>
+
+    <div class="char-card reveal">
+      <img class="char-card-img"
+        src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&q=80"
+        alt="Adéwalé"
+        onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80'"
+      />
+      <div class="char-card-overlay"></div>
+      <div class="char-card-info">
+        <p class="char-faction">Quartermaster · Assassin</p>
+        <h3 class="char-name">Adéwalé</h3>
+        <p class="char-desc">A freed slave from Trinidad and Edward's most loyal companion. His moral compass points truer north than the captain's ever will.</p>
+      </div>
+    </div>
+
+    <div class="char-card reveal">
+      <img class="char-card-img"
+        src="https://images.unsplash.com/photo-1548142813-c348350df52b?w=600&q=80"
+        alt="Blackbeard"
+        onerror="this.src='https://images.unsplash.com/photo-1553422043-d24f6a4a0f78?w=600&q=80'"
+      />
+      <div class="char-card-overlay"></div>
+      <div class="char-card-info">
+        <p class="char-faction">Pirate Legend</p>
+        <h3 class="char-name">Edward Thatch</h3>
+        <p class="char-desc">The legendary Blackbeard — terrifying in battle, surprisingly philosophical in rum. A man who built the myth of piracy and could not survive its end.</p>
+      </div>
+    </div>
+
+    <div class="char-card reveal">
+      <img class="char-card-img"
+        src="https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&q=80"
+        alt="Mary Read"
+        onerror="this.src='https://images.unsplash.com/photo-1494790108755-2616b612b977?w=600&q=80'"
+      />
+      <div class="char-card-overlay"></div>
+      <div class="char-card-info">
+        <p class="char-faction">Pirate · Assassin</p>
+        <h3 class="char-name">Mary Read</h3>
+        <p class="char-desc">Disguised as a man named James Kidd, Mary is the sharpest blade on the sea — and one of the Brotherhood's most devoted Assassins.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ships-section" id="jackdaw">
+  <div class="section-label">The Ship</div>
+  <h2 class="section-title reveal">The Jackdaw</h2>
+  <p class="section-body reveal">More than a vessel — she is Edward's freedom made manifest, his greatest treasure and fiercest weapon upon the Caribbean waves.</p>
+
+  <div class="jackdaw-feature">
+    <div class="story-text-block reveal">
+      <p class="story-chapter">Man-O'-War Class Brig</p>
+      <h3 class="story-heading">Born from the Waves</h3>
+      <div class="story-text">
+        <p>The Jackdaw began her life as a modest brig, captured from the wreckage of Edward's first naval battle. Over years of raiding merchant ships and Royal Navy warships, she was upgraded into one of the most formidable vessels in the Caribbean.</p>
+        <p>Her black sails strike terror. Her broadside cannons can level a Man-o'-War. And at her helm stands Edward Kenway — singing sea shanties as enemy ships burn on the horizon.</p>
+      </div>
+      <div class="jackdaw-stats">
+        <div class="stat-item">
+          <div class="stat-value">32</div>
+          <div class="stat-label">Cannons (max)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">3</div>
+          <div class="stat-label">Masts</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">75</div>
+          <div class="stat-label">Crew Members</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">∞</div>
+          <div class="stat-label">Sea Shanties</div>
+        </div>
+      </div>
+    </div>
+    <div class="ship-image-wrap reveal">
+      <div class="ship-glow"></div>
+      <img
+        src="https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=800&q=80"
+        alt="Tall ship on the ocean"
+        onerror="this.src='https://images.unsplash.com/photo-1519861531473-9200262188bf?w=800&q=80'"
+      />
+    </div>
+  </div>
+</section>
+
+<section class="world-section" id="world">
+  <div class="section-label">The Caribbean</div>
+  <h2 class="section-title reveal">A World of Infinite Horizon</h2>
+  <p class="section-body reveal">Nassau. Havana. Kingston. Tulum. The Caribbean in 1715 is a world of brutal beauty — ripe for the taking, impossible to hold.</p>
+
+  <div class="world-gallery">
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1545579133-99bb5ab189bd?w=1200&q=80"
+           alt="Caribbean ocean panorama"
+           onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80'"/>
+      <div class="gallery-caption">
+        <h4>The Open Sea</h4>
+        <p>Endless blue — storm and sun in equal measure. Every horizon a new possibility.</p>
+      </div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1521336575822-6da63fb45455?w=600&q=80"
+           alt="Tropical jungle"
+           onerror="this.src='https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80'"/>
+      <div class="gallery-caption">
+        <h4>Nassau</h4>
+        <p>The pirate republic — where no flag rules and every man is free.</p>
+      </div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&q=80"
+           alt="Colonial port city"
+           onerror="this.src='https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=600&q=80'"/>
+      <div class="gallery-caption">
+        <h4>Havana</h4>
+        <p>Spain's jewel of the Caribbean. Gilded walls hiding Templar ambition.</p>
+      </div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&q=80"
+           alt="Ancient ruins"
+           onerror="this.src='https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=600&q=80'"/>
+      <div class="gallery-caption">
+        <h4>Mayan Ruins</h4>
+        <p>Scattered across the islands — remnants of a civilization older than memory.</p>
+      </div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1440778303588-435521a205bc?w=1200&q=80"
+           alt="Storm at sea"
+           onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&q=80'"/>
+      <div class="gallery-caption">
+        <h4>The Tempest</h4>
+        <p>When the hurricane season arrives, even the most seasoned captain prays.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lore-section" id="lore">
+  <div class="section-label">The Chronicle</div>
+  <h2 class="section-title reveal">A Timeline of Blood & Salt</h2>
+  <p class="section-body reveal">From the shores of Wales to the ruins of the First Civilization — Edward Kenway's journey spans a decade of war, legend, and loss.</p>
+
+  <div class="lore-timeline">
+    <div class="timeline-entry reveal">
+      <div class="tl-text">
+        <div class="tl-year">1693</div>
+        <div class="tl-event">Edward Kenway Born</div>
+        <div class="tl-desc">Born in Swansea, Wales, the son of a farmer. From childhood, Edward dreams of wealth and adventure far beyond the fields.</div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-empty"></div>
+    </div>
+
+    <div class="timeline-entry reveal">
+      <div class="tl-empty"></div>
+      <div class="tl-dot"></div>
+      <div class="tl-text">
+        <div class="tl-year">1712</div>
+        <div class="tl-event">Marriage to Caroline Scott</div>
+        <div class="tl-desc">Edward weds Caroline against her father's wishes. Desperate to prove himself, he sails as a privateer — and never truly comes home.</div>
+      </div>
+    </div>
+
+    <div class="timeline-entry reveal">
+      <div class="tl-text">
+        <div class="tl-year">1715</div>
+        <div class="tl-event">The Walpole Deception</div>
+        <div class="tl-desc">After killing the fleeing Assassin Duncan Walpole, Edward steals his identity and robes — selling Brotherhood secrets to the Templars in Havana for gold.</div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-empty"></div>
+    </div>
+
+    <div class="timeline-entry reveal">
+      <div class="tl-empty"></div>
+      <div class="tl-dot"></div>
+      <div class="tl-text">
+        <div class="tl-year">1716</div>
+        <div class="tl-event">Captain of the Jackdaw</div>
+        <div class="tl-desc">Edward captures a brig and christens her the Jackdaw. With Adéwalé as quartermaster, he begins his reign as one of the Caribbean's most feared pirates.</div>
+      </div>
+    </div>
+
+    <div class="timeline-entry reveal">
+      <div class="tl-text">
+        <div class="tl-year">1718</div>
+        <div class="tl-event">The Fall of Nassau</div>
+        <div class="tl-desc">Britain offers pardons to pirates. The Republic of Pirates fractures. Blackbeard dies at Ocracoke Inlet. The Golden Age of Piracy begins its twilight.</div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-empty"></div>
+    </div>
+
+    <div class="timeline-entry reveal">
+      <div class="tl-empty"></div>
+      <div class="tl-dot"></div>
+      <div class="tl-text">
+        <div class="tl-year">1722</div>
+        <div class="tl-event">Initiation into the Brotherhood</div>
+        <div class="tl-desc">Having witnessed the cost of greed — in lives, in love, in friends lost — Edward Kenway is finally, truly, initiated as a Master Assassin of the Caribbean Brotherhood.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-emblem">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="50,5 95,95 5,95" fill="none" stroke="#c9a84c" stroke-width="2"/>
+      <circle cx="50" cy="52" r="5" fill="#c9a84c"/>
+    </svg>
+  </div>
+  <p class="footer-tagline">Nothing is True. Everything is Permitted.</p>
+  <p style="font-size:0.9rem;color:var(--cream-dark);font-style:italic;margin-top:0.5rem;font-family:'IM Fell English',serif;">
+    "I am not an Assassin. I'm just a man who takes what he wants — and suffers for it."
+  </p>
+  <p class="footer-small">
+    Assassin's Creed IV: Black Flag — Ubisoft Montreal · 2013<br>
+    Fan tribute website — not affiliated with Ubisoft
+  </p>
+</footer>
+
+<script>
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 1;
+    p.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*20+15}s;
+      animation-delay:${Math.random()*20}s;
+      opacity:${Math.random()*0.5+0.1};
+    `;
+    container.appendChild(p);
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  window.addEventListener('scroll', () => {
+    const ship = document.querySelector('.hero-ship-img');
+    if (ship) ship.style.transform = `translateX(-50%) translateY(${window.scrollY * 0.3}px)`;
+  });
+</script>
+</body>
+</html>
